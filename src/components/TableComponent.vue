@@ -91,9 +91,10 @@ const generateMockData = () => {
     "武汉市江汉区xxx广场",
   ];
 
-  for (let i = 1; i <= 500; i++) {
-    // 随机生成完成状态
-    const isCompleted = Math.random() > 0.3; // 70%概率为已完成
+  // 生成500条模拟数据
+  for (let i = 1; i <= 2000; i++) {
+    // 随机生成完成状态，70%概率为已完成
+    const isCompleted = Math.random() > 0.3;
     data.push({
       id: i,
       name: names[Math.floor(Math.random() * names.length)],
@@ -103,7 +104,7 @@ const generateMockData = () => {
         2,
         "0"
       )}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, "0")}`,
-      completed: isCompleted
+      completed: isCompleted,
     });
   }
   return data;
@@ -120,18 +121,20 @@ let chartInstance = null;
 
 // 分页计算属性
 const paginatedData = computed(() => {
+  // 根据当前页码和每页显示条数计算数据切片范围
   const start = (currentPage.value - 1) * pageSize.value;
   const end = start + pageSize.value;
+  // 返回当前页需要显示的数据
   return tableData.value.slice(start, end);
 });
 
 // 统计数据计算属性
 const completedCount = computed(() => {
-  return tableData.value.filter(item => item.completed).length;
+  return tableData.value.filter((item) => item.completed).length;
 });
 
 const uncompletedCount = computed(() => {
-  return tableData.value.filter(item => !item.completed).length;
+  return tableData.value.filter((item) => !item.completed).length;
 });
 
 // 分页事件处理
@@ -146,65 +149,76 @@ const handleCurrentChange = (val) => {
 
 // 初始化ECharts
 const initChart = () => {
+  // 确保图表容器存在
   if (chartRef.value) {
+    // 初始化ECharts实例
     chartInstance = echarts.init(chartRef.value);
+    // 更新图表数据
     updateChart();
   }
 };
 
 // 更新图表
 const updateChart = () => {
+  // 确保ECharts实例存在
   if (chartInstance) {
+    // 配置图表选项
     const option = {
       title: {
-        text: '任务完成情况',
-        left: 'center'
+        text: "任务完成情况",
+        left: "center",
       },
       tooltip: {
-        trigger: 'item'
+        trigger: "item",
       },
       legend: {
-        orient: 'vertical',
-        left: 'left'
+        orient: "vertical",
+        left: "left",
       },
       series: [
         {
-          name: '任务统计',
-          type: 'pie',
-          radius: '50%',
+          name: "任务统计",
+          type: "pie",
+          radius: "50%",
           data: [
-            { value: completedCount.value, name: '已完成' },
-            { value: uncompletedCount.value, name: '未完成' }
+            { value: completedCount.value, name: "已完成" },
+            { value: uncompletedCount.value, name: "未完成" },
           ],
           emphasis: {
             itemStyle: {
               shadowBlur: 10,
               shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }
-      ]
+              shadowColor: "rgba(0, 0, 0, 0.5)",
+            },
+          },
+        },
+      ],
     };
+    // 设置图表选项
     chartInstance.setOption(option);
   }
 };
 
 // 监听窗口大小变化，重置图表大小
 const resizeChart = () => {
+  // 确保ECharts实例存在
   if (chartInstance) {
+    // 调整图表大小以适应容器
     chartInstance.resize();
   }
 };
 
 // 在组件挂载时初始化图表
 onMounted(() => {
+  // 初始化ECharts图表
   initChart();
-  window.addEventListener('resize', resizeChart);
+  // 添加窗口大小变化监听器
+  window.addEventListener("resize", resizeChart);
 });
 
 // 当统计数据变化时更新图表
 watch([completedCount, uncompletedCount], () => {
+  // 更新ECharts图表数据
   updateChart();
 });
 
@@ -225,8 +239,10 @@ const exportPdfHtml2Canvas = async () => {
       format: "a4",
     });
 
-    // 首先导出图表和统计区域
-    const chartContainer = document.querySelector('.chart-statistics-container');
+    // 第一部分：导出ECharts图表和统计数据
+    const chartContainer = document.querySelector(
+      ".chart-statistics-container"
+    );
     let hasChartPage = false;
     if (chartContainer) {
       // 创建临时容器用于截图
@@ -265,9 +281,9 @@ const exportPdfHtml2Canvas = async () => {
       if (chartInstance) {
         const chartImg = document.createElement("img");
         chartImg.src = chartInstance.getDataURL({
-          type: 'png',
+          type: "png",
           pixelRatio: 2,
-          backgroundColor: '#fff'
+          backgroundColor: "#fff",
         });
         chartImg.style.width = "100%";
         chartWrapper.appendChild(chartImg);
@@ -310,7 +326,9 @@ const exportPdfHtml2Canvas = async () => {
       };
 
       statsWrapper.appendChild(createStatItem(completedCount.value, "已完成"));
-      statsWrapper.appendChild(createStatItem(uncompletedCount.value, "未完成"));
+      statsWrapper.appendChild(
+        createStatItem(uncompletedCount.value, "未完成")
+      );
       statsWrapper.appendChild(createStatItem(totalItems.value, "总计"));
 
       contentContainer.appendChild(statsWrapper);
@@ -341,7 +359,7 @@ const exportPdfHtml2Canvas = async () => {
       const ratio = imgWidth / canvas.width;
       const imgHeight = canvas.height * ratio;
 
-      // 添加图片到PDF
+      // 添加图片到PDF第一页
       pdf.addImage(
         canvas.toDataURL("image/jpeg", 0.95),
         "JPEG",
@@ -350,10 +368,11 @@ const exportPdfHtml2Canvas = async () => {
         imgWidth,
         Math.min(imgHeight, pdfHeight - 40)
       );
-      
+
       hasChartPage = true;
     }
 
+    // 第二部分：分页导出表格数据
     // 每页显示的数据条数
     const itemsPerPage = 30;
     const totalPages = Math.ceil(tableData.value.length / itemsPerPage);
@@ -361,6 +380,8 @@ const exportPdfHtml2Canvas = async () => {
     // 分页导出表格数据
     for (let pageNum = 0; pageNum < totalPages; pageNum++) {
       // 添加新页面（除了第一页）
+      // 如果已经导出图表页，则从第二页开始添加新页
+      // 如果没有图表页，则从第一页开始添加表格内容
       if (pageNum > 0 || hasChartPage) {
         pdf.addPage();
       }
@@ -374,7 +395,7 @@ const exportPdfHtml2Canvas = async () => {
       tempContainer.style.backgroundColor = "white";
       tempContainer.style.padding = "20px";
 
-      // 创建表格标题
+      // 创建表格标题，显示当前页码和总页数
       const title = document.createElement("h2");
       title.textContent = `数据表格导出 (第 ${
         pageNum + 1
@@ -407,9 +428,11 @@ const exportPdfHtml2Canvas = async () => {
 
       // 创建表体
       const tbody = document.createElement("tbody");
+      // 计算当前页需要显示的数据范围
       const start = pageNum * itemsPerPage;
       const end = Math.min(start + itemsPerPage, tableData.value.length);
 
+      // 遍历当前页的数据并添加到表格中
       for (let i = start; i < end; i++) {
         const item = tableData.value[i];
         const row = document.createElement("tr");
@@ -455,7 +478,7 @@ const exportPdfHtml2Canvas = async () => {
       table.appendChild(tbody);
       tempContainer.appendChild(table);
 
-      // 添加页脚
+      // 添加页脚，显示当前页码
       const footer = document.createElement("div");
       footer.textContent = `第 ${pageNum + 1} 页 共 ${totalPages} 页`;
       footer.style.textAlign = "center";
@@ -526,7 +549,7 @@ const exportPdfPdfLib = async () => {
     // 注册 fontkit
     pdfDoc.registerFontkit(fontkit);
 
-    // 首先添加图表和统计信息页面
+    // 第一部分：创建首页，包含ECharts图表的文本描述和统计数据
     let page = pdfDoc.addPage([600, 800]);
     let yPosition = 750;
 
@@ -579,8 +602,12 @@ const exportPdfPdfLib = async () => {
     yPosition -= 30;
 
     // 计算百分比
-    const completedPercent = Math.round((completedCount.value / totalItems.value) * 100);
-    const uncompletedPercent = Math.round((uncompletedCount.value / totalItems.value) * 100);
+    const completedPercent = Math.round(
+      (completedCount.value / totalItems.value) * 100
+    );
+    const uncompletedPercent = Math.round(
+      (uncompletedCount.value / totalItems.value) * 100
+    );
 
     page.drawText(`已完成: ${completedCount.value} (${completedPercent}%)`, {
       x: 70,
@@ -591,12 +618,15 @@ const exportPdfPdfLib = async () => {
 
     yPosition -= 25;
 
-    page.drawText(`未完成: ${uncompletedCount.value} (${uncompletedPercent}%)`, {
-      x: 70,
-      y: yPosition,
-      size: 12,
-      color: rgb(0.8, 0, 0), // 红色
-    });
+    page.drawText(
+      `未完成: ${uncompletedCount.value} (${uncompletedPercent}%)`,
+      {
+        x: 70,
+        y: yPosition,
+        size: 12,
+        color: rgb(0.8, 0, 0), // 红色
+      }
+    );
 
     yPosition -= 40;
 
@@ -622,7 +652,7 @@ const exportPdfPdfLib = async () => {
       size: radius,
       color: rgb(0.9, 0.9, 0.9),
       borderColor: rgb(0, 0, 0),
-      borderWidth: 1
+      borderWidth: 1,
     });
 
     // 绘制已完成部分的扇形（简化表示）
@@ -633,7 +663,7 @@ const exportPdfPdfLib = async () => {
       size: radius,
       color: rgb(0.2, 0.6, 1), // 蓝色表示已完成
       borderColor: rgb(0, 0, 0),
-      borderWidth: 1
+      borderWidth: 1,
     });
 
     // 添加图例
@@ -676,6 +706,7 @@ const exportPdfPdfLib = async () => {
       color: rgb(0, 0, 0),
     });
 
+    // 第二部分：分页导出表格数据
     // 创建第二页用于表格数据
     page = pdfDoc.addPage([600, 800]);
     yPosition = 750;
@@ -896,7 +927,7 @@ const exportPdfPdfLib = async () => {
   .chart-statistics-container {
     flex-direction: column;
   }
-  
+
   .chart-container,
   .statistics-container {
     min-width: 100%;
