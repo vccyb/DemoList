@@ -16,84 +16,87 @@
         <!-- 名称列 - 输入框筛选 -->
         <el-table-column prop="name" label="名称" width="180">
           <template #header>
-            <el-popover
-              placement="bottom"
-              :width="200"
-              trigger="click"
-              @show="showNameFilter = true"
-              @hide="showNameFilter = false"
-            >
-              <template #reference>
-                <div class="filter-header">
-                  <span>名称</span>
-                  <el-icon class="filter-icon" :class="{ 'active': nameFilter }">
+            <div class="column-header">
+              <span>名称</span>
+              <el-popover
+                :visible="showNameFilter"
+                placement="bottom"
+                :width="200"
+                trigger="click"
+                @click-outside="showNameFilter = false"
+              >
+                <template #reference>
+                  <el-icon 
+                    class="filter-icon" 
+                    :class="{ 'active': nameFilter }"
+                    @click.stop="showNameFilter = !showNameFilter"
+                  >
                     <ArrowDown />
                   </el-icon>
+                </template>
+                <div class="filter-popover">
+                  <el-input
+                    v-model="filterParams.name"
+                    placeholder="请输入名称"
+                    size="small"
+                    clearable
+                  />
+                  <div class="filter-actions">
+                    <el-button size="small" @click="showNameFilter = false">取消</el-button>
+                    <el-button type="primary" size="small" @click="applyNameFilter">确定</el-button>
+                  </div>
                 </div>
-              </template>
-              <div class="filter-popover">
-                <el-input
-                  v-model="filterParams.name"
-                  placeholder="请输入名称"
-                  size="small"
-                  clearable
-                />
-                <div class="filter-actions">
-                  <el-button size="small" @click="resetNameFilter">重置</el-button>
-                  <el-button type="primary" size="small" @click="applyNameFilter">确定</el-button>
-                </div>
-              </div>
-            </el-popover>
+              </el-popover>
+            </div>
           </template>
         </el-table-column>
-        
+
         <!-- 分类列 - 枚举值筛选 -->
         <el-table-column prop="category" label="分类" width="120">
           <template #header>
-            <el-popover
-              ref="categoryPopoverRef"
-              v-model:visible="showCategoryFilter"
-              placement="bottom"
-              :width="200"
-              trigger="click"
-              :popper-options="{ modifiers: [{ name: 'eventListeners', options: { scroll: false } }] }"
-            >
-              <template #reference>
-                <div class="filter-header">
-                  <span>分类</span>
-                  <el-icon class="filter-icon" :class="{ 'active': categoryFilter }">
+            <div class="column-header">
+              <span>分类</span>
+              <el-popover
+                :visible="showCategoryFilter"
+                placement="bottom"
+                :width="200"
+                trigger="click"
+                @click-outside="showCategoryFilter = false"
+              >
+                <template #reference>
+                  <el-icon
+                    class="filter-icon"
+                    :class="{ 'active': categoryFilter }"
+                    @click.stop="showCategoryFilter = !showCategoryFilter"
+                  >
                     <ArrowDown />
                   </el-icon>
+                </template>
+                <div class="filter-popover">
+                  <el-select
+                    v-model="filterParams.category"
+                    placeholder="请选择分类"
+                    size="small"
+                    clearable
+                    class="w-full"
+                  >
+                    <el-option
+                      v-for="item in categoryOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                  <div class="filter-actions">
+                    <el-button size="small" @click="showCategoryFilter = false">取消</el-button>
+                    <el-button type="primary" size="small" @click="applyCategoryFilter">确定</el-button>
+                  </div>
                 </div>
-              </template>
-              <div class="filter-popover" @mousedown.stop @click.stop>
-                <el-select
-                  v-model="filterParams.category"
-                  placeholder="请选择分类"
-                  size="small"
-                  clearable
-                  class="w-full"
-                  @mousedown.stop
-                  @click.stop
-                >
-                  <el-option 
-                    v-for="item in categoryOptions" 
-                    :key="item.value" 
-                    :label="item.label" 
-                    :value="item.value"
-                    @mousedown.stop
-                    @click.stop
-                  />
-                </el-select>
-                <div class="filter-actions">
-                  <el-button size="small" @click="resetCategoryFilter">重置</el-button>
-                  <el-button type="primary" size="small" @click="applyCategoryFilter">确定</el-button>
-                </div>
-              </div>
-            </el-popover>
+              </el-popover>
+            </div>
           </template>
         </el-table-column>
-        
+
         <!-- 状态列 - 枚举值筛选 -->
         <el-table-column prop="status" label="状态" width="100">
           <template #header>
@@ -123,10 +126,10 @@
                   @mousedown.stop
                   @click.stop
                 >
-                  <el-option 
-                    v-for="item in statusOptions" 
-                    :key="item.value" 
-                    :label="item.label" 
+                  <el-option
+                    v-for="item in statusOptions"
+                    :key="item.value"
+                    :label="item.label"
                     :value="item.value"
                     @mousedown.stop
                     @click.stop
@@ -145,7 +148,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        
+
         <!-- 创建时间列 - 时间范围筛选 -->
         <el-table-column prop="createTime" label="创建时间" width="200">
           <template #header>
