@@ -1,31 +1,12 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
+import { generateRoutes } from '../demo-config.js';
 
-// 导入组件
-import TableExportPDF from '../components/TableComponent.vue'
-import TableFilter from '../views/TableFilter.vue'
-import HomePage from '../views/HomePage.vue'
-
-const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: HomePage
-  },
-  {
-    path: '/table-export-pdf',
-    name: 'TableExportPDF',
-    component: TableExportPDF
-  },
-  {
-    path: '/table-filter',
-    name: 'TableFilter',
-    component: TableFilter
-  }
-]
+// 生成路由配置
+const routes = generateRoutes();
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
-})
+});
 
-export default router
+export default router;
