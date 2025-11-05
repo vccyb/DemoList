@@ -1,3 +1,50 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 重置默认样式 */
+body {
+  padding: 0;
+  margin: 0;
+}
+
+/* Element Plus 暗黑模式变量 */
+:root {
+  --el-bg-color-page: #ffffff;
+  --el-bg-color-overlay: #ffffff;
+  --el-text-color-primary: #303133;
+  --el-border-color-light: #e4e7ed;
+}
+
+/* Element Plus 暗黑模式变量 */
+html.dark {
+  --el-bg-color-page: #141414;
+  --el-bg-color-overlay: #1d1e1f;
+  --el-text-color-primary: #e5eaf3;
+  --el-border-color-light: #4c4d4f;
+}
+
+/* 自定义暗黑模式样式 */
+html.dark {
+  background-color: #141414;
+  color: #e5eaf3;
+}
+
+/* 确保 Element Plus 组件在暗黑模式下正确显示 */
+html.dark .el-button {
+  --el-button-bg-color: #1d1e1f;
+  --el-button-border-color: #4c4d4f;
+  --el-button-text-color: #e5eaf3;
+}
+
+html.dark .el-card {
+  --el-card-bg-color: #1d1e1f;
+  --el-card-border-color: #4c4d4f;
+}
+
+html.dark .el-table {
+  --el-table-bg-color: #1d1e1f;
+  --el-table-tr-bg-color: #1d1e1f;
+  --el-table-border-color: #4c4d4f;
+  --el-table-text-color: #e5eaf3;
+}
